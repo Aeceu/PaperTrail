@@ -1,0 +1,53 @@
+version: '3.9'
+
+services:
+  client:
+    build: ./client
+    ports:
+      - '5173:5173'
+    develop:
+      watch:
+        - path: ./client/package.json
+          action: rebuild
+        - path: ./client/package-lock.json
+          action: rebuild
+        - path: ./client
+          target: /app
+          action: sync
+
+  server:
+    build: ./server
+    ports:
+      - '4200:4200'
+    depends_on:
+      - postgres
+    environment:
+      - DB_NAME=your-db-name
+      - DB_USER=your-db-username
+      - DB_PASS=your-db-password
+      - DB_HOST=postgres
+      - TOKEN_SECRET=your-secret-key
+    develop:
+      watch:
+        - path: ./server/package.json
+          action: rebuild
+        - path: ./server/package-lock.json
+          action: rebuild
+        - path: ./server
+          target: /app
+          action: sync
+
+  postgres:
+    image: postgres:15
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_DB=your-db-name
+      - POSTGRES_USER=your-db-username
+      - POSTGRES_PASSWORD=your-db-password
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
