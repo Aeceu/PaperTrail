@@ -11,7 +11,7 @@ export const verifyJWT = (req: Request, res: Response, next: NextFunction) => {
   jwt.verify(token, process.env.TOKEN_SECRET!, (err, decoded) => {
     if (err) return res.sendStatus(403); // invalid token!
 
-    const payload = decoded as { id: string; username: string; email: string };
+    const payload = decoded as { id: number; username: string; email: string };
     req.user = payload;
     next();
   });

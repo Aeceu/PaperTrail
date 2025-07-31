@@ -9,7 +9,6 @@ import {
 
 export const handleCreateFolder = async (req: Request, res: Response) => {
   const data = req.body;
-  // const user = req.user;
   try {
     const newFolder = await createFolder({
       name: data.name,
@@ -28,7 +27,6 @@ export const handleGetALlParentFolders = async (
   req: Request,
   res: Response
 ) => {
-  // const user = req.user;
   const userId = req.params.userId;
   try {
     const folders = await getParentFolders(Number(userId));
