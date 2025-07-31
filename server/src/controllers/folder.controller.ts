@@ -38,7 +38,7 @@ export const handleGetALlParentFolders = async (
   }
 };
 
-export const handeGetAllSubFolders = async (req: Request, res: Response) => {
+export const handleGetAllSubFolders = async (req: Request, res: Response) => {
   const parentId = req.params.parentId;
   const data = req.body;
   // const user = req.user;
