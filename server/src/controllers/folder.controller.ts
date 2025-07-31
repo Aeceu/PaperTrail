@@ -23,7 +23,7 @@ export const handleCreateFolder = async (req: Request, res: Response) => {
   }
 };
 
-export const handleGetALlParentFolders = async (
+export const handleGetAllParentFolders = async (
   req: Request,
   res: Response
 ) => {
