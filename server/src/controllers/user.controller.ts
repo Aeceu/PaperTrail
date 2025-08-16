@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import {
   createUser,
   findUserByEmail,
+  findUserByToken,
   getAllUsers,
 } from '../services/user.services';
 import bcryptjs from 'bcryptjs';
@@ -55,6 +56,9 @@ export const HandleLogin = async (req: Request, res: Response) => {
     const refreshToken = jwt.sign(userData, process.env.TOKEN_SECRET!, {
       expiresIn: '7d',
     });
+
+    user.refreshToken = refreshToken;
+    user.save();
 
     res.cookie('jwt', refreshToken, {
       secure: true,
@@ -137,4 +141,37 @@ export const HandleRefreshToken = async (req: Request, res: Response) => {
     },
     accessToken,
   });
+};
+
+export const HandleLogout = async (req: Request, res: Response) => {
+  try {
+    const cookies = req.cookies;
+    if (!cookies.jwt) return res.sendStatus(204);
+    const refreshToken = cookies.jwt;
+
+    const foundUser = await findUserByToken(refreshToken);
+    if (!foundUser) {
+      res.clearCookie('jwt', {
+        httpOnly: true,
+        sameSite: 'none',
+        secure: true,
+      });
+      return res.status(204).json({ message: 'Successfully logout!' });
+    }
+
+    foundUser.refreshToken = '';
+    foundUser.save();
+
+    res.clearCookie('jwt', {
+      httpOnly: true,
+      sameSite: 'none',
+      secure: true,
+    });
+    return res.status(204).json({ message: 'Successfully logout!' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      message: 'Failed to logout!',
+    });
+  }
 };

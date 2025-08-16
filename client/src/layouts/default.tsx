@@ -1,6 +1,6 @@
 import AppSidebar from '@/components/AppSidebar';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
-import { Outlet, useParams } from 'react-router-dom';
+import { Link, Outlet, useParams } from 'react-router-dom';
 import { SidebarTrigger } from '@/components/ui/sidebar';
 import {
   Breadcrumb,
@@ -11,22 +11,41 @@ import {
   BreadcrumbSeparator,
 } from '@/components/ui/breadcrumb';
 import { Separator } from '@/components/ui/separator';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { handleGetParentFolders } from '@/actions/folderActions';
 import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch, RootState } from '@/store/store';
+import { handleLogout } from '@/actions/userActions';
+import { setToken, setUser } from '@/store/slices/userSlice';
+
 const Default = () => {
   const { parentId } = useParams<{ parentId?: string }>();
+  const { user } = useSelector((state: RootState) => state.user);
+  const dispatch = useDispatch<AppDispatch>();
 
   const { data: parentFolders, isPending } = useQuery({
-    queryKey: ['parentFolders'],
-    queryFn: () => handleGetParentFolders(1),
+    queryKey: ['parentFolders', user?.id],
+    queryFn: () => {
+      if (!user?.id) return [];
+      return handleGetParentFolders(user?.id);
+    },
+  });
+
+  const mutation = useMutation({
+    mutationFn: () => handleLogout(),
+    onSuccess: () => {
+      dispatch(setUser(null));
+      dispatch(setToken(null));
+    },
   });
 
   return (
     <SidebarProvider>
       <AppSidebar parentFolders={parentFolders} isPending={isPending} />
       <SidebarInset>
-        <header className="flex h-16 items-center gap-2 shrink-0">
+        <header className="flex items-center justify-between h-16 gap-2 pr-4 shrink-0">
           <div className="flex items-center gap-2 px-4">
             <SidebarTrigger />
             <Separator
@@ -48,6 +67,25 @@ const Default = () => {
                 )}
               </BreadcrumbList>
             </Breadcrumb>
+          </div>
+          <div className="flex gap-2">
+            {user ? (
+              <Button
+                onClick={() => mutation.mutate()}
+                disabled={mutation.isPending}
+              >
+                {mutation.isPending ? 'Logging out...' : 'logout'}
+              </Button>
+            ) : (
+              <>
+                <Button size={'sm'} variant={'link'} asChild>
+                  <Link to={'/login'}>login</Link>
+                </Button>
+                <Button size={'sm'} asChild>
+                  <Link to={'/signup'}>signup</Link>
+                </Button>
+              </>
+            )}
           </div>
         </header>
         {isPending ? (

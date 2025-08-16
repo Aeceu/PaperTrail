@@ -15,16 +15,19 @@ import { useState } from 'react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { handleCreateFolder } from '@/actions/folderActions';
 import { useParams } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import type { RootState } from '@/store/store';
 
 const CreateFolder = () => {
   const { parentId } = useParams<{ parentId?: string }>();
   const [folderName, setFolderName] = useState('');
+  const { user } = useSelector((state: RootState) => state.user);
 
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: () =>
       handleCreateFolder({
-        userId: 1,
+        userId: user?.id,
         name: folderName,
         parentId: Number(parentId),
       }),

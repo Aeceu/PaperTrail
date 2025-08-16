@@ -28,3 +28,23 @@ export const handleSignup = async (data: SignupProps) => {
     console.log(error);
   }
 };
+
+export const handleRefresh = async () => {
+  try {
+    const res = await axios.get('/refresh');
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+export const handleLogout = async () => {
+  try {
+    const res = await axios.get('/logout');
+    return res.data;
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};

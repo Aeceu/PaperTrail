@@ -1,19 +1,22 @@
 import { handleGetSubFolders } from '@/actions/folderActions';
 import Folders from '@/components/Folders';
 import { Separator } from '@/components/ui/separator';
+import type { RootState } from '@/store/store';
 import { useQuery } from '@tanstack/react-query';
 import { Loader2 } from 'lucide-react';
+import { useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 
 const Folder = () => {
   const { parentId } = useParams<{ parentId?: string }>();
-
+  const { user } = useSelector((state: RootState) => state.user);
   const parentIdNum = Number(parentId);
+
   const { data, isPending, error } = useQuery({
     queryKey: ['subFolders', parentId],
     queryFn: () =>
       handleGetSubFolders({
-        userId: 1,
+        userId: user?.id,
         parentId: parentIdNum,
       }),
     enabled: !!parentId,

@@ -3,15 +3,15 @@ import axios from '../api/axios';
 type CreateFolderTypes = {
   name: string;
   parentId: number | undefined;
-  userId: number;
+  userId?: number;
 };
 export const handleCreateFolder = async ({
   name,
   parentId,
   userId,
 }: CreateFolderTypes) => {
-  if (!name) {
-    return console.log('name is required!');
+  if (!name || !userId) {
+    return console.log('name and userId is required!');
   }
   try {
     const res = await axios.post('/folders', {
@@ -26,10 +26,12 @@ export const handleCreateFolder = async ({
   }
 };
 
-export const handleGetParentFolders = async (userId: number) => {
+export const handleGetParentFolders = async (userId?: number | undefined) => {
+  if (!userId) {
+    return console.error('No user id is inputed!');
+  }
   try {
     const res = await axios.get(`/folders/${userId}`);
-    console.log(res.data);
     return res.data;
   } catch (error) {
     console.log(error);
@@ -41,8 +43,11 @@ export const handleGetSubFolders = async ({
   userId,
 }: {
   parentId: number;
-  userId: number;
+  userId?: number;
 }) => {
+  if (!userId) {
+    return console.log('user id is required!');
+  }
   try {
     const res = await axios.post(`/folders/${parentId}/subfolders`, {
       userId,
